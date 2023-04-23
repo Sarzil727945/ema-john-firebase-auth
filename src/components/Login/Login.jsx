@@ -1,16 +1,36 @@
-import React from 'react';
+import React, { useContext, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import { Link } from 'react-router-dom';
+import { AuthContext } from '../../Providers/AuthProviders';
 
 const Login = () => {
+    const {singIn} = useContext(AuthContext)
+
+    const [success, setSuccess] = useState('')
+    const [error, setError] = useState('')
 
     const handelLogin = (event) =>{
         event.preventDefault();
+        setError('')
+        setSuccess('')
         const form = event.target;
         const email = form.email.value;
         const password = form.password.value;
         console.log(email, password);
+
+        singIn(email, password)
+        .then((userCredential) => {
+            // Signed in 
+            const user = userCredential.user;
+            setSuccess('SuccessFull')
+            form.reset()
+          })
+          .catch((error) => {
+            const errorCode = error.code;
+            const errorMessage = error.message;
+            setError(errorMessage)
+          });
     }
 
     return (
@@ -25,6 +45,8 @@ const Login = () => {
                 <Form.Group className="mb-3" controlId="formBasicPassword">
                     <Form.Label>Password</Form.Label>
                     <Form.Control type="password" name='password' placeholder="Password" required />
+                    <p className='mt-3 text-danger'>{error}</p>
+                  <p className='mt-3 text-success'>{success}</p>
                 </Form.Group>
                 <div className="d-grid gap-2">
                     <Button type="submit" variant="primary" size="lg">
